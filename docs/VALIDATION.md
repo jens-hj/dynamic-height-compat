@@ -1,4 +1,31 @@
-# 0.1.0 validation
+# Validation
+
+## 0.1.1
+
+Minecraft 1.21.1 / NeoForge 21.1.266 with Dynamic Height 0.3.5, Sable 2.0.6,
+Moonlight 3.8.3 (`yBea1yLM`), and Supplementaries 4.0.2 (`rWq0ko29`).
+
+- A controlled constructor-replacement fixture reproduces the user's new
+  `GenerationBounds.from` null-cache crash with the old 0.1.0 implementation.
+  It forces an outer cache replacement so development mixin ordering cannot
+  accidentally hide the production bug.
+- The revised implementation passes that same forced-replacement check using
+  Moonlight's actual `FakeServerLevel` and dummy chunk cache. It checks inherited
+  generator identity/bounds, fake empty-chunk behavior, temporary-state cleanup,
+  and isolation from the parent level.
+- The isolated client with all four mods starts successfully, including
+  Supplementaries' automatic fake-world initialization. It passes block placement
+  at Y=512 and Y=-96, client synchronization, and a full save/restart preserving
+  the extended -128..1024 range and both blocks.
+- Dedicated GameTests were attempted but were blocked by the already-documented
+  `LayerLightSectionStorage.getStoredLevel` lighting exception before all three
+  tests could complete. They are not reported as passing. A test-only initial
+  height fixture did not resolve that issue and was removed.
+
+This alpha carries forward the existing lighting limitation; the update targets
+the newly reported Moonlight/Supplementaries startup path only.
+
+## 0.1.0
 
 Minecraft 1.21.1, NeoForge 21.1.266, Dynamic Height 0.3.5 (`KUDC8Jhh`),
 Sable 2.0.6 (`fg9dTRz9`), Java 21 on Linux. Sable's embedded Veil 4.3.2 and
