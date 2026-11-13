@@ -11,6 +11,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     @Override public void onLoad(String mixinPackage) {}
     @Override public String getRefMapperConfig() { return null; }
     @Override public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (mixinClassName.endsWith("CommandFunctionMixin")) {
+            return !Boolean.getBoolean("dynamicheightcompat.test.disableBuildToolsFix");
+        }
         return !Boolean.getBoolean("dynamicheightcompat.test.disableStartupFix");
     }
     @Override public void acceptTargets(Set<String> mine, Set<String> others) {}

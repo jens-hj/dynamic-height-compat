@@ -4,6 +4,6 @@
   "package": "dev.jensh.dynamicheightcompat.mixin",
   "plugin": "dev.jensh.dynamicheightcompat.CompatMixinPlugin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["ServerLevelMixin", "GenerationBoundsMixin"],
+  "mixins": ["ServerLevelMixin", "GenerationBoundsMixin", "CommandFunctionMixin"],
   "injectors": {"defaultRequire": 1}
 }

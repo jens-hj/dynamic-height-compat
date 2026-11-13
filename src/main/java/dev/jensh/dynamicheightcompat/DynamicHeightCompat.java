@@ -10,5 +10,7 @@ public final class DynamicHeightCompat {
     public DynamicHeightCompat() {
         LogUtils.getLogger().info("Dynamic Height Compat: generator bounds startup fix {}",
             Boolean.getBoolean("dynamicheightcompat.test.disableStartupFix") ? "disabled (test baseline)" : "enabled");
+        LogUtils.getLogger().info("Dynamic Height Compat: Jake's Build Tools helper relocation {}",
+            Boolean.getBoolean("dynamicheightcompat.test.disableBuildToolsFix") ? "disabled (test baseline)" : "enabled");
     }
 }
