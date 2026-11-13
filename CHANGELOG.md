@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Fix the startup crash when Supplementaries creates Moonlight fake worlds alongside Dynamic Height and Sable.
+- Keep generator bounds available even when another mod replaces the chunk-cache constructor.
+
 ## 0.1.0
 
 - Initial alpha: prevent Dynamic Height 0.3.5 from crashing during world startup with Sable 2.0.6.
