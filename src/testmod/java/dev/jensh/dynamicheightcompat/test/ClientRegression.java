@@ -82,6 +82,7 @@ public final class ClientRegression {
                         "Extended world bounds were not preserved: " + level.getMinBuildHeight() + ".." + level.getMaxBuildHeight());
                     require(((ConstructionGeneratorAccess) level).dynamicHeightCompat$getConstructionGenerator() == null,
                         "Construction generator leaked after startup");
+                    FakeWorldRegression.check(level);
                     if (reload) {
                         require(level.getBlockState(HIGH).is(Blocks.DIAMOND_BLOCK), "High block did not survive reload");
                         require(level.getBlockState(LOW).is(Blocks.GOLD_BLOCK), "Low block did not survive reload");
@@ -104,8 +105,8 @@ public final class ClientRegression {
                 "Client did not receive extended bounds");
             if (!mc.level.hasChunk(0, 0)) return;
             require(mc.level.getBlockState(HIGH).is(Blocks.DIAMOND_BLOCK), "Client did not receive high block");
-            finish(true, reload ? "Extended world reload and persisted blocks passed" :
-                "Extended world startup, placement at Y=512/-96, and client sync passed");
+            finish(true, reload ? "Moonlight fake world, extended world reload, and persisted blocks passed" :
+                "Moonlight fake world, extended startup, placement at Y=512/-96, and client sync passed");
         } catch (Throwable error) {
             error.printStackTrace();
             finish(false, error.toString());

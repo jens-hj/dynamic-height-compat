@@ -5,3 +5,5 @@ license="MIT"
 modId="dynamic_height_compat_test"
 version="1.0"
 displayName="Dynamic Height Compat Tests"
+[[mixins]]
+config="dynamic_height_compat.test.mixins.json"
