@@ -59,7 +59,9 @@ neoForge {
 
 dependencies {
     implementation "maven.modrinth:dynamic-height:${project.dynamic_height_version}"
-    runtimeOnly "maven.modrinth:sable:${project.sable_version}"
+    if (!providers.gradleProperty('withoutSable').isPresent()) {
+        runtimeOnly "maven.modrinth:sable:${project.sable_version}"
+    }
 }
 
 def prepareRun = { File directory ->
@@ -96,6 +98,8 @@ tasks.named('runClientTest') {
 tasks.named('runGameTestServer') {
     doFirst {
         prepareRun(gameTestDirectory)
+        // Never reuse chunks/light data from baseline or different-height test runs.
+        new File(gameTestDirectory, 'world').deleteDir()
         // Dynamic Height promotes vanilla-sized ranges to its 32K default; use explicit extended bounds.
         def height = new File(gameTestDirectory, 'world/data/dynamic_height_minecraft_overworld.config')
         height.parentFile.mkdirs()
