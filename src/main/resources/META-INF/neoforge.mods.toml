@@ -10,7 +10,7 @@ displayName="Dynamic Height Compat"
 displayURL="https://modrinth.com/mod/dynamic-height-compat"
 logoFile="assets/dynamic_height_compat/icon.png"
 authors="jens-hj"
-description='''Compatibility fixes for Dynamic Height: Sable and Moonlight startup, plus Jake's Build Tools helper coordinates.'''
+description='''Compatibility fixes for Dynamic Height: Sable and Moonlight startup, Jake's Build Tools helpers, and Voxy rendering in tall worlds.'''
 
 [[mixins]]
 config="dynamic_height_compat.mixins.json"
