@@ -38,6 +38,8 @@ neoForge {
             sourceSet = sourceSets.testmod
             gameDirectory = gameTestDirectory
             systemProperty 'neoforge.enabledGameTestNamespaces', 'dynamic_height_compat'
+            programArgument '--spawnPos'
+            programArgument '0,-59,0'
         }
         clientTest {
             client()

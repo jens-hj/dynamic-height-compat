@@ -10,6 +10,9 @@ Sable Companion 1.6.0 are included in the integration runtime.
 - `./gradlew runGameTestServer`: both required tests passed with the fix.
   Checks generator bounds, cleanup of the temporary generator, basic block
   placement, and unchanged handling of non-server height accessors.
+  A final fresh-world run with an explicit spawn argument passed both tests again.
+  Sable still relocates the test arena, so the argument does not make that arena
+  deterministic; other dedicated runs exposed the lighting issue below.
 - Isolated Xvfb client test: created a -128..1024 world, placed a diamond block
   at Y=512 and a gold block at Y=-96, saved all dimensions, and verified client
   height and block synchronization.
@@ -27,8 +30,8 @@ isolated Xvfb display. The Engineering instance and player saves were untouched.
 
 ## Known limits
 
-Dedicated GameTest runs at Dynamic Height's default 32K upper limit, and a
-separate run without Sable, hit a `LayerLightSectionStorage.getStoredLevel`
+Dedicated GameTest runs at Dynamic Height's default 32K upper limit, a repeated
+-128..1024 run, and a separate run without Sable hit a `LayerLightSectionStorage.getStoredLevel`
 null-DataLayer exception. Those runs were stopped and are not recorded as passing
 tests. The addon loaded without the optional Sable dependency, but that test did
 not finish. This startup fix does not address that lighting issue. The accepted

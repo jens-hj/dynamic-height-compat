@@ -46,7 +46,7 @@ The initial release addresses world startup, not complete compatibility with all
 physics, extreme heights, or other mods. Dynamic Height's documented Lithium
 incompatibility is outside this fix. See [the player-facing page](docs/MODRINTH.md).
 
-Tests use a supported -128..1024 range. A separate 32K dedicated GameTest run
-exposed a lighting-thread null-section failure, which this startup patch does not
-fix. The complete Engineering modpack and moving contraptions are not certified
+Client tests use a supported -128..1024 range. Dedicated GameTest runs exposed
+an intermittent lighting-thread null-section failure at both this range and 32K,
+which this startup patch does not fix. The complete Engineering modpack and moving contraptions are not certified
 by these focused tests.

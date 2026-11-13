@@ -18,6 +18,6 @@ Install alongside the original mods on the server and clients, or in your single
 
 Version 0.1.0 addresses the initial world-startup crash. It does not claim complete compatibility with all Sable physics, extreme heights, other mods, or future releases. Dynamic Height lists Lithium as incompatible; this addon does not address that separate issue.
 
-The regression suite uses a **−128 to 1024** world and checks blocks at **Y=−96** and **Y=512**. Separate dedicated GameTest runs at 32K and without Sable hit a lighting-thread failure; this addon does not fix that issue. Start with a backed-up test world at the tested range.
+The client regression uses a **−128 to 1024** world and checks blocks at **Y=−96** and **Y=512**, including a full save/restart. Dedicated GameTest runs also exposed an intermittent lighting-thread failure, including at this range and without Sable. This addon does not fix that issue. Use backed-up test worlds; the initial alpha only fixes the startup exception.
 
 Future releases can add further focused compatibility fixes. Report reproducible issues with logs and exact mod versions on [GitHub](https://github.com/jens-hj/dynamic-height-compat/issues).
