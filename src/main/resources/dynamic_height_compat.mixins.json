@@ -4,6 +4,8 @@
   "package": "dev.jensh.dynamicheightcompat.mixin",
   "plugin": "dev.jensh.dynamicheightcompat.CompatMixinPlugin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["ServerLevelMixin", "GenerationBoundsMixin", "CommandFunctionMixin"],
+  "mixins": ["ServerLevelMixin", "GenerationBoundsMixin", "CommandFunctionMixin",
+    "voxy.VoxyWorldEngineMixin", "voxy.VoxyStorageMixin"],
+  "client": ["voxy.VoxyShaderMixin"],
   "injectors": {"defaultRequire": 1}
 }

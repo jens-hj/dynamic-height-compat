@@ -12,5 +12,9 @@ public final class DynamicHeightCompat {
             Boolean.getBoolean("dynamicheightcompat.test.disableStartupFix") ? "disabled (test baseline)" : "enabled");
         LogUtils.getLogger().info("Dynamic Height Compat: Jake's Build Tools helper relocation {}",
             Boolean.getBoolean("dynamicheightcompat.test.disableBuildToolsFix") ? "disabled (test baseline)" : "enabled");
+        if (net.neoforged.fml.ModList.get().isLoaded("voxy")) {
+            LogUtils.getLogger().info("Dynamic Height Compat: Voxy extended Y coordinates, shaders, and isolated cache {}",
+                Boolean.getBoolean("dynamicheightcompat.test.disableVoxyFix") ? "disabled (test baseline)" : "enabled");
+        }
     }
 }

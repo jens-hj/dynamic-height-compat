@@ -23,6 +23,20 @@ ordering="NONE"
 side="BOTH"
 
 [[dependencies.dynamic_height_compat]]
+modId="voxy"
+type="optional"
+versionRange="[0.2.16-beta,0.2.17)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.dynamic_height_compat]]
+modId="roxy"
+type="optional"
+versionRange="[0.4.1,0.5)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.dynamic_height_compat]]
 modId="minecraft"
 type="required"
 versionRange="[1.21.1,1.21.2)"
