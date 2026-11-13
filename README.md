@@ -26,7 +26,9 @@ Use the Nix flake (Gradle runs on Java 25; compilation and Minecraft use Java 21
 ```sh
 nix develop -c ./gradlew build compileTestmodJava
 nix develop -c ./gradlew runGameTestServer
+nix develop -c ./gradlew runGameTestServer -PwithoutSable
 nix develop -c python scripts/headless-test.py ./gradlew runClientTest
+nix develop -c python scripts/headless-test.py ./gradlew runClientTest -Preload
 nix develop -c ./gradlew modrinth -PmodrinthDryRun
 ```
 
@@ -43,3 +45,8 @@ upstream dependency jars are excluded from the published jar.
 The initial release addresses world startup, not complete compatibility with all
 physics, extreme heights, or other mods. Dynamic Height's documented Lithium
 incompatibility is outside this fix. See [the player-facing page](docs/MODRINTH.md).
+
+Tests use a supported -128..1024 range. A separate 32K dedicated GameTest run
+exposed a lighting-thread null-section failure, which this startup patch does not
+fix. The complete Engineering modpack and moving contraptions are not certified
+by these focused tests.

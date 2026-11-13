@@ -12,10 +12,12 @@ Prevents the `GenerationBounds.from` crash when Sable creates its empty chunk be
 - Dynamic Height **0.3.5** for NeoForge 1.21.1.
 - Sable **2.0.6** is the targeted integration; it is optional for loading this mod.
 
-Install alongside the original mods on the server, or in your singleplayer instance. Clients can also install the same jar. This addon does not replace either mod.
+Install alongside the original mods on the server and clients, or in your singleplayer instance. This addon does not replace either mod.
 
 ## Scope
 
 Version 0.1.0 addresses the initial world-startup crash. It does not claim complete compatibility with all Sable physics, extreme heights, other mods, or future releases. Dynamic Height lists Lithium as incompatible; this addon does not address that separate issue.
+
+The regression suite uses a **−128 to 1024** world and checks blocks at **Y=−96** and **Y=512**. Separate dedicated GameTest runs at 32K and without Sable hit a lighting-thread failure; this addon does not fix that issue. Start with a backed-up test world at the tested range.
 
 Future releases can add further focused compatibility fixes. Report reproducible issues with logs and exact mod versions on [GitHub](https://github.com/jens-hj/dynamic-height-compat/issues).
