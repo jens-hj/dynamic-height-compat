@@ -1,5 +1,53 @@
 # Validation
 
+## 0.1.3
+
+The Engineering retry reached the renderer and crashed in Voxy 0.2.16-beta:
+`Position not valid at all levels: ...4@[54, 12, 26]:0@[864, -64, 416]`.
+Level-4 Y=12 expands to base-section Y=192, which does not fit its signed byte.
+Xaero's map worker subsequently waited for the render thread while holding a
+world capability lock; server shutdown waited for that lock, leaving the loading
+screen visible and delaying the crash report. The Xaero shutdown path is not
+modified by this release.
+
+- The exact installed Voxy/Roxy/Sodium jars are used in isolated Xvfb tests:
+  Voxy `H3w2nVdU` (the 1.21.11 Fabric jar), Roxy `VnJRhuAn` (0.4.1), Sodium
+  0.8.13; Minecraft 1.21.1 / NeoForge 21.1.266, DH 0.3.5, Sable 2.0.6,
+  Moonlight 3.8.3, Supplementaries 4.0.2, and JBT 2.0.1.5.
+- Disabling only the three Voxy hooks reproduces the exact original
+  `NodeManager.assertPosValid` exception (`build/voxy-negative-control.log`).
+  That negative control is expected to fail.
+- A complete 32K startup with the actual enabled Voxy pipeline passes
+  (`build/voxy-32k-client.log`). Exhaustive CPU tests cover 4096 distinct Y keys,
+  legacy-key preservation, unchanged X/Z/level fields, and all five LOD levels.
+- The loaded, Roxy-processed position shader is executed as an OpenGL compute
+  shader for all 4096 Y values, checking X, Y, Z, and level. The normal Voxy
+  render pipeline remains active, its async worker remains healthy, and the
+  diamond block at Y=32720 is found in Voxy's actual section data
+  (`build/voxy-gpu-ingest-verified.log`).
+- A new JVM reopens the world with Voxy ingestion disabled and still finds that
+  high-altitude diamond in the rendered world's stored section data. GPU checks
+  and cache isolation also pass (`build/voxy-cold-cache-reload.log`).
+- A fresh combined run adds C2ME 0.4.0-alpha.0.124 and enabled Voxy World Gen V2
+  2.4.2 (test radius 64, one active generation task). It passes GPU decoding,
+  live rendering, actual Y=32720 ingestion, the previous integrations, world
+  save, and shutdown (`build/voxy-combined-pack-client.log`). Voxy logs its
+  pending section-save count while draining the queue, then completes shutdown.
+- All five dedicated tests pass without Voxy installed, with C2ME and the
+  previous integrations (`build/voxy-final-gametest.log`). This also checks that
+  the new integration remains optional.
+- The shader tests run on llvmpipe / Mesa 26.2.5, OpenGL 4.6. One earlier 3G test
+  exhausted its heap; the completed Voxy ingestion/cache tests use a 6G heap.
+  This is isolated validation, not certification of the full Engineering pack
+  or its AMD/Iris/shader combination.
+
+The four low bits are reserved by this Voxy version. Its installed RocksDB
+backend's `swizzlePos` returns the complete key unchanged; NodeStore/geometry
+uploads retain the complete key, and the shared position shader decodes it.
+Both filesystem backends use `ConfigBuildCtx.ensurePathExists`, where the
+separate cache directory is selected. Original Voxy jars, cache data, and player
+Engineering player worlds are not modified during test runs.
+
 ## 0.1.2
 
 The Engineering server was parked in a datapack `/forceload` command while C2ME's
