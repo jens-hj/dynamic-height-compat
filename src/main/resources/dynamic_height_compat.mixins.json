@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.jensh.dynamicheightcompat.mixin",
+  "plugin": "dev.jensh.dynamicheightcompat.CompatMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["ServerLevelMixin", "GenerationBoundsMixin"],
+  "injectors": {"defaultRequire": 1}
+}

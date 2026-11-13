@@ -1,0 +1,124 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+    id 'com.modrinth.minotaur' version '2.10.0'
+}
+
+java { withSourcesJar(); toolchain.languageVersion = JavaLanguageVersion.of(21) }
+base { archivesName = 'dynamic-height-compat' }
+repositories {
+    mavenCentral()
+    exclusiveContent {
+        forRepository { maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' } }
+        filter { includeGroup 'maven.modrinth' }
+    }
+}
+
+sourceSets {
+    testmod {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+def gameTestDirectory = layout.buildDirectory.dir('run/gameTest').get().asFile
+def clientTestDirectory = layout.buildDirectory.dir('run/clientTest').get().asFile
+def packMods = providers.gradleProperty('packMods')
+neoForge {
+    version = project.neo_version
+    mods {
+        dynamic_height_compat { sourceSet sourceSets.main }
+        dynamic_height_compat_test { sourceSet sourceSets.testmod }
+    }
+    runs {
+        client { client() }
+        server { server(); programArgument '--nogui' }
+        gameTestServer {
+            type = 'gameTestServer'
+            sourceSet = sourceSets.testmod
+            gameDirectory = gameTestDirectory
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'dynamic_height_compat'
+        }
+        clientTest {
+            client()
+            sourceSet = sourceSets.testmod
+            gameDirectory = clientTestDirectory
+            systemProperty 'dynamicheightcompat.clientTest', 'true'
+            systemProperty 'dynamicheightcompat.testResult', layout.buildDirectory.file('client-result.json').get().asFile.absolutePath
+        }
+    }
+    runs.configureEach {
+        jvmArgument '-Xmx6G'
+        // Negative control: prove the installed Dynamic Height/Sable pair fails without our fix.
+        if (providers.gradleProperty('baseline').isPresent()) {
+            systemProperty 'dynamicheightcompat.test.disableStartupFix', 'true'
+        }
+    }
+}
+
+dependencies {
+    implementation "maven.modrinth:dynamic-height:${project.dynamic_height_version}"
+    runtimeOnly "maven.modrinth:sable:${project.sable_version}"
+}
+
+def prepareRun = { File directory ->
+    directory.mkdirs()
+    // Always merge the actual run directory's options before any graphical launch.
+    def options = new File(directory, 'options.txt')
+    def lines = options.exists() ? options.readLines().findAll {
+        !(it.split(':', 2)[0] in ['soundCategory_master', 'soundCategory_music', 'onboardAccessibility',
+                                  'narrator', 'pauseOnLostFocus', 'fullscreen', 'renderDistance',
+                                  'simulationDistance', 'tutorialStep'])
+    } : []
+    options.text = (lines + ['soundCategory_master:0.0', 'soundCategory_music:0.0',
+        'onboardAccessibility:false', 'narrator:0', 'pauseOnLostFocus:false', 'fullscreen:false',
+        'renderDistance:3', 'simulationDistance:3', 'tutorialStep:none']).join('\n') + '\n'
+    if (packMods.isPresent()) {
+        def mods = new File(directory, 'mods'); mods.mkdirs()
+        new File(packMods.get()).listFiles().findAll {
+            it.name.endsWith('.jar') && !it.name.startsWith('dynamic-height-compat-') &&
+            !it.name.startsWith('dynamicheight-') && !it.name.startsWith('sable-neoforge-')
+        }.each { source ->
+            def target = new File(mods, source.name).toPath()
+            if (!java.nio.file.Files.exists(target)) java.nio.file.Files.createSymbolicLink(target, source.toPath().toRealPath())
+        }
+    }
+}
+tasks.named('runClient') { doFirst { prepareRun(file('run')) } }
+tasks.named('runClientTest') { doFirst { prepareRun(clientTestDirectory) } }
+tasks.named('runGameTestServer') { doFirst { prepareRun(gameTestDirectory) } }
+
+tasks.withType(Jar).configureEach { from('LICENSE') }
+def releaseVersion = project.version.toString()
+processResources {
+    inputs.property 'version', releaseVersion
+    filesMatching('META-INF/neoforge.mods.toml') { expand version: releaseVersion }
+}
+
+def modrinthToken = providers.environmentVariable('MODRINTH_TOKEN').orElse(
+    providers.fileContents(layout.projectDirectory.file(
+        "${System.getProperty('user.home')}/.config/modrinth-token")).asText.map { it.trim() })
+def currentChangelog = providers.fileContents(layout.projectDirectory.file('CHANGELOG.md')).asText.map { text ->
+    def section = text.split(/(?m)^## /).find { it.startsWith("${version}\n") || it.startsWith("${version}\r") }
+    section ? section.substring(section.indexOf('\n') + 1).trim() : ''
+}
+modrinth {
+    token = modrinthToken
+    projectId = 'dynamic-height-compat'
+    versionNumber = project.version.toString()
+    versionName = "${project.version} (NeoForge ${project.minecraft_version})"
+    versionType = 'alpha'
+    environment = 'client_and_server'
+    uploadFile = jar
+    additionalFiles { sourcesJar(tasks.named('sourcesJar')) }
+    gameVersions = [project.minecraft_version]
+    loaders = ['neoforge']
+    changelog = currentChangelog
+    dependencies {
+        required.version project.dynamic_height_version
+        optional.version project.sable_version
+    }
+    syncBodyFrom = file('docs/MODRINTH.md').text
+}
+tasks.named('modrinth') { notCompatibleWithConfigurationCache('Minotaur reads Task.project') }
+tasks.named('modrinthSyncBody') { notCompatibleWithConfigurationCache('Minotaur reads Task.project') }
