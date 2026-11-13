@@ -126,7 +126,7 @@ def currentChangelog = providers.fileContents(layout.projectDirectory.file('CHAN
 modrinth {
     debugMode = providers.gradleProperty('modrinthDryRun').isPresent()
     token = modrinthToken
-    projectId = 'dynamic-height-compat'
+    projectId = 'L51WyOj4'
     versionNumber = project.version.toString()
     versionName = "${project.version} (NeoForge ${project.minecraft_version})"
     versionType = 'alpha'
