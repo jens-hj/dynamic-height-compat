@@ -48,13 +48,20 @@ neoForge {
             systemProperty 'dynamicheightcompat.clientTest', 'true'
             systemProperty 'dynamicheightcompat.testResult', layout.buildDirectory.file('client-result.json').get().asFile.absolutePath
             systemProperty 'dynamicheightcompat.reload', providers.gradleProperty('reload').isPresent().toString()
+            systemProperty 'dynamicheightcompat.test.minY', providers.gradleProperty('minY').getOrElse('-128')
+            systemProperty 'dynamicheightcompat.test.maxY', providers.gradleProperty('maxY').getOrElse('1024')
+            systemProperty 'dynamicheightcompat.test.highY', providers.gradleProperty('highY').getOrElse('512')
         }
     }
     runs.configureEach {
-        jvmArgument '-Xmx6G'
+        jvmArgument "-Xmx${providers.gradleProperty('testHeap').getOrElse('3G')}"
+        jvmArgument '-XX:ActiveProcessorCount=4'
         // Negative control: prove the installed Dynamic Height/Sable pair fails without our fix.
         if (providers.gradleProperty('baseline').isPresent()) {
             systemProperty 'dynamicheightcompat.test.disableStartupFix', 'true'
+        }
+        if (providers.gradleProperty('baselineBuildTools').isPresent()) {
+            systemProperty 'dynamicheightcompat.test.disableBuildToolsFix', 'true'
         }
     }
 }
@@ -65,6 +72,7 @@ dependencies {
         runtimeOnly "maven.modrinth:sable:${project.sable_version}"
     }
     testmodImplementation "maven.modrinth:moonlight:${project.moonlight_version}"
+    testmodRuntimeOnly "maven.modrinth:jakes-build-tools:${project.build_tools_version}"
     if (providers.gradleProperty('supplementaries').isPresent()) {
         testmodRuntimeOnly "maven.modrinth:supplementaries:${project.supplementaries_version}"
     }
@@ -82,11 +90,15 @@ def prepareRun = { File directory ->
     options.text = (lines + ['soundCategory_master:0.0', 'soundCategory_music:0.0',
         'onboardAccessibility:false', 'narrator:0', 'pauseOnLostFocus:false', 'fullscreen:false',
         'renderDistance:3', 'simulationDistance:5', 'tutorialStep:none']).join('\n') + '\n'
+    def mods = new File(directory, 'mods'); mods.mkdirs()
+    // Each run uses exactly the requested diagnostic set, never leftovers from a prior set.
+    mods.listFiles().findAll { java.nio.file.Files.isSymbolicLink(it.toPath()) }.each { it.delete() }
     if (packMods.isPresent()) {
-        def mods = new File(directory, 'mods'); mods.mkdirs()
         new File(packMods.get()).listFiles().findAll {
             it.name.endsWith('.jar') && !it.name.startsWith('dynamic-height-compat-') &&
-            !it.name.startsWith('dynamicheight-') && !it.name.startsWith('sable-neoforge-')
+            !it.name.startsWith('dynamicheight-') && !it.name.startsWith('sable-neoforge-') &&
+            !it.name.startsWith('moonlight-') && !it.name.startsWith('supplementaries-') &&
+            !it.name.startsWith('jakes-build-tools-')
         }.each { source ->
             def target = new File(mods, source.name).toPath()
             if (!java.nio.file.Files.exists(target)) java.nio.file.Files.createSymbolicLink(target, source.toPath().toRealPath())
@@ -145,6 +157,7 @@ modrinth {
         optional.version project.sable_version
         optional.version project.moonlight_version
         optional.version project.supplementaries_version
+        optional.version project.build_tools_version
     }
     syncBodyFrom = file('docs/MODRINTH.md').text
 }
