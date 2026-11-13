@@ -45,6 +45,7 @@ neoForge {
             gameDirectory = clientTestDirectory
             systemProperty 'dynamicheightcompat.clientTest', 'true'
             systemProperty 'dynamicheightcompat.testResult', layout.buildDirectory.file('client-result.json').get().asFile.absolutePath
+            systemProperty 'dynamicheightcompat.reload', providers.gradleProperty('reload').isPresent().toString()
         }
     }
     runs.configureEach {
@@ -72,7 +73,7 @@ def prepareRun = { File directory ->
     } : []
     options.text = (lines + ['soundCategory_master:0.0', 'soundCategory_music:0.0',
         'onboardAccessibility:false', 'narrator:0', 'pauseOnLostFocus:false', 'fullscreen:false',
-        'renderDistance:3', 'simulationDistance:3', 'tutorialStep:none']).join('\n') + '\n'
+        'renderDistance:3', 'simulationDistance:5', 'tutorialStep:none']).join('\n') + '\n'
     if (packMods.isPresent()) {
         def mods = new File(directory, 'mods'); mods.mkdirs()
         new File(packMods.get()).listFiles().findAll {
@@ -85,8 +86,22 @@ def prepareRun = { File directory ->
     }
 }
 tasks.named('runClient') { doFirst { prepareRun(file('run')) } }
-tasks.named('runClientTest') { doFirst { prepareRun(clientTestDirectory) } }
-tasks.named('runGameTestServer') { doFirst { prepareRun(gameTestDirectory) } }
+def reloadTest = providers.gradleProperty('reload').isPresent()
+tasks.named('runClientTest') {
+    doFirst {
+        prepareRun(clientTestDirectory)
+        if (!reloadTest) new File(clientTestDirectory, 'saves/compat-height-test').deleteDir()
+    }
+}
+tasks.named('runGameTestServer') {
+    doFirst {
+        prepareRun(gameTestDirectory)
+        // Dynamic Height promotes vanilla-sized ranges to its 32K default; use explicit extended bounds.
+        def height = new File(gameTestDirectory, 'world/data/dynamic_height_minecraft_overworld.config')
+        height.parentFile.mkdirs()
+        height.text = '{"format":"dynamicheight-worldheight-v1","minY":-128,"maxY":1024}\n'
+    }
+}
 
 tasks.withType(Jar).configureEach { from('LICENSE') }
 def releaseVersion = project.version.toString()
@@ -103,6 +118,7 @@ def currentChangelog = providers.fileContents(layout.projectDirectory.file('CHAN
     section ? section.substring(section.indexOf('\n') + 1).trim() : ''
 }
 modrinth {
+    debugMode = providers.gradleProperty('modrinthDryRun').isPresent()
     token = modrinthToken
     projectId = 'dynamic-height-compat'
     versionNumber = project.version.toString()

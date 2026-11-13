@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -30,9 +31,19 @@ with (root / "build" / "xvfb.log").open("w") as log:
         environment["SDL_VIDEO_DRIVER"] = "x11"
         environment.pop("WAYLAND_DISPLAY", None)
         # Runtime tests must inherit the isolated display, even when a Gradle daemon exists.
-        result = subprocess.run(sys.argv[1:], env=environment, cwd=root)
-        if result.returncode:
-            raise SystemExit(result.returncode)
+        command = sys.argv[1:]
+        if "gradlew" in Path(command[0]).name and "--no-daemon" not in command:
+            command.append("--no-daemon")
+        process = subprocess.Popen(command, env=environment, cwd=root, start_new_session=True)
+        try:
+            code = process.wait(timeout=300)
+        except subprocess.TimeoutExpired:
+            # This isolated process group belongs only to this test invocation.
+            os.killpg(process.pid, signal.SIGTERM)
+            process.wait(timeout=15)
+            raise SystemExit("Client regression exceeded five minutes")
+        if code:
+            raise SystemExit(code)
         marker = root / "build/client-result.json"
         if not marker.exists() or marker.stat().st_mtime < started:
             raise SystemExit("Minecraft exited without completing the graphical test")
