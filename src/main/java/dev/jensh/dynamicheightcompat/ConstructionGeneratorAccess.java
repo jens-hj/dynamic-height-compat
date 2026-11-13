@@ -2,7 +2,7 @@ package dev.jensh.dynamicheightcompat;
 
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
-/** The actual generator supplied to a level's chunk-cache constructor, only while it runs. */
+/** The level's actual generator, available until its constructor completes. */
 public interface ConstructionGeneratorAccess {
     ChunkGenerator dynamicHeightCompat$getConstructionGenerator();
 }
