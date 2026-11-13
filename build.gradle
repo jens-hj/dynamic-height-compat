@@ -63,6 +63,9 @@ neoForge {
         if (providers.gradleProperty('baselineBuildTools').isPresent()) {
             systemProperty 'dynamicheightcompat.test.disableBuildToolsFix', 'true'
         }
+        if (providers.gradleProperty('baselineVoxy').isPresent()) {
+            systemProperty 'dynamicheightcompat.test.disableVoxyFix', 'true'
+        }
     }
 }
 
@@ -158,6 +161,8 @@ modrinth {
         optional.version project.moonlight_version
         optional.version project.supplementaries_version
         optional.version project.build_tools_version
+        optional.version project.voxy_version
+        optional.version project.roxy_version
     }
     syncBodyFrom = file('docs/MODRINTH.md').text
 }

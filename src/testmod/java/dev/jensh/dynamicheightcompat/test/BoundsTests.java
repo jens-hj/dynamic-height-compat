@@ -14,6 +14,12 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public final class BoundsTests {
     @GameTest(template = "empty")
+    public static void voxyExtendedCoordinatesDoNotCollide(GameTestHelper test) {
+        VoxyRegression.checkCodec();
+        test.succeed();
+    }
+
+    @GameTest(template = "empty")
     public static void buildToolsHelpersUseRepresentableCoordinates(GameTestHelper test) {
         BuildToolsRegression.check(test.getLevel());
         test.succeed();

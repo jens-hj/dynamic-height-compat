@@ -55,6 +55,7 @@ public final class ClientRegression {
             boolean reload = Boolean.getBoolean("dynamicheightcompat.reload");
             if (!started) {
                 if (!(mc.screen instanceof TitleScreen)) return;
+                if (net.neoforged.fml.ModList.get().isLoaded("voxy")) VoxyRegression.checkInstalled();
                 started = true;
                 if (reload) {
                     mc.createWorldOpenFlows().openWorld(WORLD, () -> finish(false, "World reload cancelled"));
@@ -117,6 +118,7 @@ public final class ClientRegression {
             CompletableFuture.runAsync(() -> require(
                 server.overworld().getBrightness(LightLayer.BLOCK, LIGHT.above()) >= 14,
                 "Server block light did not propagate above vanilla build height"), server).join();
+            if (net.neoforged.fml.ModList.get().isLoaded("voxy") && !VoxyRegression.checkRenderer(HIGH)) return;
             finish(true, "Moonlight fake world, " + MIN_Y + ".." + MAX_Y +
                 (reload ? " reload" : " startup") + ", high/low blocks and server/client lighting passed");
         } catch (Throwable error) {
