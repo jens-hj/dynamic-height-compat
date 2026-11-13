@@ -25,6 +25,12 @@ coordinate.
 - All four dedicated tests pass with DH, Sable, Moonlight, Supplementaries, JBT,
   and C2ME at the corrected test origin (`build/jbt-gametest.log`). All four
   also pass without Sable or C2ME (`build/jbt-without-sable-gametest.log`).
+- An additional run with Sable but without C2ME completed all four assertions,
+  then spent several minutes in synchronous `RegionFile` writes during shutdown.
+  It was stopped after 7m44s total runtime; Gradle consequently reports that
+  invocation as failed. It is not counted as a completed test run
+  (`build/jbt-final-gametest.log`, `build/gametest-shutdown-threads.txt`). The two
+  completed dedicated configurations above exited successfully.
 
 Vanilla GameTestServer chooses random arena coordinates within ±15M regardless
 of its spawn argument. Earlier intermittent dedicated failures used locations
