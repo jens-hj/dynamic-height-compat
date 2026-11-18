@@ -1,27 +1,24 @@
-#!/usr/bin/env python3
-"""Original pixel art: extended world layers joined by a copper brace."""
+"""Original compatibility icon, composed on one absolute pixel grid."""
 from pathlib import Path
 from PIL import Image, ImageDraw
-from compat_symbol import with_compat_symbol
+from compat_symbol import BACKGROUND, draw_compat_symbol
 
 root = Path(__file__).resolve().parents[1]
-image = Image.new("RGB", (32, 32), "#102335")
-draw = ImageDraw.Draw(image)
-draw.rectangle((6, 7, 21, 23), fill="#70503d")
-draw.rectangle((6, 7, 21, 9), fill="#78b66b")
-draw.rectangle((6, 15, 21, 23), fill="#687b8d")
-for x, y in ((8, 12), (17, 11), (12, 21), (19, 18), (8, 17)):
-    draw.rectangle((x, y, x + 1, y + 1), fill="#b3bbba")
-# An odd-width shaft and symmetric heads share the same pixel center.
-arrow_x = 25
-draw.rectangle((arrow_x - 1, 5, arrow_x + 1, 25), fill="#e5ae6b")
-draw.polygon(((arrow_x - 3, 7), (arrow_x, 3), (arrow_x + 3, 7)), fill="#e5ae6b")
-draw.polygon(((arrow_x - 3, 24), (arrow_x, 28), (arrow_x + 3, 24)), fill="#e5ae6b")
-draw.rectangle((3, 4, 10, 5), fill="#8be3cf")
-draw.rectangle((3, 4, 4, 11), fill="#8be3cf")
-draw.rectangle((3, 25, 10, 26), fill="#8be3cf")
-draw.rectangle((3, 19, 4, 26), fill="#8be3cf")
-for path, size in ((root / "src/main/resources/assets/dynamic_height_compat/icon.png", 128),
-                   (root / "docs/icon.png", 512)):
+image = Image.new("RGB", (32,32), BACKGROUND)
+d = ImageDraw.Draw(image)
+# A tall terrain column and height arrow leave space for the links.
+d.rectangle((4,6,17,25), fill="#687b8d")
+d.rectangle((4,6,17,13), fill="#805b43")
+d.rectangle((4,5,17,7), fill="#84c77a")
+for x,y in [(6,10),(13,11),(7,17),(13,21)]:
+    d.rectangle((x,y,x+1,y+1), fill="#b6c8c7")
+d.rectangle((23,6,24,14), fill="#d9ad73")
+for box in [(22,5,25,6),(21,6,26,7),(22,14,25,15),(21,13,26,14)]:
+    d.rectangle(box, fill="#d9ad73")
+d.rectangle((23,4,24,4), fill="#d9ad73")
+d.rectangle((23,16,24,16), fill="#d9ad73")
+
+draw_compat_symbol(image)
+for path, size in ((root / "src/main/resources/assets/dynamic_height_compat/icon.png", 128), (root / "docs/icon.png", 512)):
     path.parent.mkdir(parents=True, exist_ok=True)
-    with_compat_symbol(image.resize((size, size), Image.Resampling.NEAREST)).save(path)
+    image.resize((size,size), Image.Resampling.NEAREST).save(path)
