@@ -2,6 +2,7 @@
 """Original pixel art: extended world layers joined by a copper brace."""
 from pathlib import Path
 from PIL import Image, ImageDraw
+from compat_symbol import with_compat_symbol
 
 root = Path(__file__).resolve().parents[1]
 image = Image.new("RGB", (32, 32), "#102335")
@@ -23,4 +24,4 @@ draw.rectangle((3, 19, 4, 26), fill="#8be3cf")
 for path, size in ((root / "src/main/resources/assets/dynamic_height_compat/icon.png", 128),
                    (root / "docs/icon.png", 512)):
     path.parent.mkdir(parents=True, exist_ok=True)
-    image.resize((size, size), Image.Resampling.NEAREST).save(path)
+    with_compat_symbol(image.resize((size, size), Image.Resampling.NEAREST)).save(path)
