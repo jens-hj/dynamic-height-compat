@@ -1,24 +1,29 @@
-"""Original compatibility icon, composed on one absolute pixel grid."""
+"""Original pixel art. Each character is exactly one cell of a 16x16 grid."""
 from pathlib import Path
-from PIL import Image, ImageDraw
-from compat_symbol import BACKGROUND, draw_compat_symbol
+from PIL import Image
+from compat_symbol import compose
 
 root = Path(__file__).resolve().parents[1]
-image = Image.new("RGB", (32,32), BACKGROUND)
-d = ImageDraw.Draw(image)
-# A tall terrain column and height arrow leave space for the links.
-d.rectangle((4,6,17,25), fill="#687b8d")
-d.rectangle((4,6,17,13), fill="#805b43")
-d.rectangle((4,5,17,7), fill="#84c77a")
-for x,y in [(6,10),(13,11),(7,17),(13,21)]:
-    d.rectangle((x,y,x+1,y+1), fill="#b6c8c7")
-d.rectangle((23,6,24,14), fill="#d9ad73")
-for box in [(22,5,25,6),(21,6,26,7),(22,14,25,15),(21,13,26,14)]:
-    d.rectangle(box, fill="#d9ad73")
-d.rectangle((23,4,24,4), fill="#d9ad73")
-d.rectangle((23,16,24,16), fill="#d9ad73")
-
-draw_compat_symbol(image)
+ART = (
+    '................',
+    '................',
+    '...........A....',
+    '..GGGGGG..AAA...',
+    '..DDDDDD...A....',
+    '..DLDDLD...A....',
+    '..DDDDDD...A....',
+    '..SSSSSS..AAA...',
+    '..SLSSSS...A....',
+    '..SSSSLS........',
+    '..SSSSSS........',
+    '..SLSSSS........',
+    '..SSSSSS........',
+    '................',
+    '................',
+    '................',
+)
+COLORS = {'G': '#84c77a', 'D': '#997251', 'L': '#c6d1c8', 'S': '#687f8c', 'A': '#e6b978'}
+image = compose(ART, COLORS)
 for path, size in ((root / "src/main/resources/assets/dynamic_height_compat/icon.png", 128), (root / "docs/icon.png", 512)):
     path.parent.mkdir(parents=True, exist_ok=True)
     image.resize((size,size), Image.Resampling.NEAREST).save(path)
